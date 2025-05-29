@@ -113,6 +113,16 @@ int main(void) {
 
     glfwMakeContextCurrent(window);
 
+    // Para usar funciones modernas
+    glewExperimental = GL_TRUE; 
+    if (glewInit() != GLEW_OK) {
+        fprintf(stderr, "Error: No se pudo inicializar GLEW\n");
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+
+    
     int num_particles = NUM_PARTICLES;
 
     // Luego reservá memoria para ellas
@@ -128,13 +138,6 @@ int main(void) {
 
 
 
-    glewExperimental = GL_TRUE; // Para usar funciones modernas
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Error: No se pudo inicializar GLEW\n");
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return -1;
-    }
 
     init_render(num_particles);
     inicialization(particles);
