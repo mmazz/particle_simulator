@@ -1,14 +1,32 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -Iinclude     # <--- Le indicamos que busque headers en include/
-LIBS = -lglfw -lGLEW -lGL -lm
+CFLAGS = -std=c99 -Wall -Wextra -O2 -Iinclude
+SRC = src/main.c src/gl.c src/shader.c src/particle.c src/renderer.c
+OBJ := $(patsubst src/%.c, build/obj/%.o, $(SRC))
+LIBS = -lglfw -ldl -lGL
+TARGET = main
+EXECUTABLE = simulator
+DIRS = build build/obj
 
-SRC = src/main.c src/renderer.c src/particle.c src/shader.c src/utils.c
-OBJ = $(SRC:.c=.o)
+.PHONY: clean
 
-all: simulator
+all: directories $(TARGET)
 
-simulator: $(OBJ)
-	$(CC) $(CFLAGS) -o build/$@ $^ $(LIBS)
+directories:
+	@for dir in $(DIRS); do \
+		if [ ! -d $$dir ]; then \
+			echo "Creando $$dir"; \
+			mkdir -p $$dir; \
+		fi; \
+	done
+
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) -o build/$(EXECUTABLE) $(OBJ) $(LIBS)
+
+
+build/obj/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 
 clean:
-	rm -f src/*.o build/simulator
+	rm -f $(OBJ) build/$(EXECUTABLE)

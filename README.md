@@ -2,7 +2,7 @@
 
 This proyect is for personal learning.
 The goal is to learn:
-  - C 
+  - C
   - Memory managment for huge amount of individual elements
   - Rendering
   - More

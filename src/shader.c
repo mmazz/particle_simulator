@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <GL/glew.h>
 #include "../include/shader.h"
+
 char* read_file(const char* path) {
     FILE* file = fopen(path, "rb");
     if (!file) {
@@ -83,4 +83,5 @@ GLuint load_shader_program(const char* vertex_path, const char* fragment_path) {
     glDeleteShader(fragment_shader);
     return program;
 }
+
 

@@ -1,8 +1,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include <GL/glew.h> // Necesario para los tipos y funciones de OpenGL
-#include <GL/gl.h>  // Algunas distros lo requieren para que gl* compile
+#include "../include/glad/gl.h"
 #include <stdlib.h>
 #include "particle.h"
 extern GLuint vbo;

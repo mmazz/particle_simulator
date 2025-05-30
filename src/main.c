@@ -1,12 +1,12 @@
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h> 
-#include <GL/glew.h>    
 #include <stdio.h>
+#include <stdlib.h>
+#include "../include/glad/gl.h"
+#include <GLFW/glfw3.h>
 #include "../include/shader.h"
 #include "../include/particle.h"
 #include "../include/renderer.h"
 
-// Settings
+
 #define SCR_WIDTH 800
 #define SCR_HEIGHT 600
 #define NUM_PARTICLES 1000
@@ -18,6 +18,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, 1);
+    else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        printf("Espacio presionado!\n");
+}
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         // Tu código actual para influir partículas...
@@ -71,8 +77,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-
 int inicialization(Particle* particles){
+
     if (!particles) {
         fprintf(stderr, "Error al asignar memoria\n");
         return -1;
@@ -91,41 +97,36 @@ int inicialization(Particle* particles){
     }
     return 0;
 }
-int main(void) {
 
-    // Inicializar GLFW
+
+int main() {
     if (!glfwInit()) {
-        fprintf(stderr, "Error: No se pudo inicializar GLFW\n");
+        fprintf(stderr, "Error al inicializar GLFW\n");
         return -1;
     }
 
-    // Crear ventana con contexto OpenGL 3.3 Core Profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // Configurar versión de OpenGL (4.6 Core Profile)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Verlet Integration", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Ventana OpenGL 4.6 (C)", NULL, NULL);
     if (!window) {
-        fprintf(stderr, "Error: No se pudo crear la ventana GLFW\n");
+        fprintf(stderr, "Error al crear la ventana GLFW\n");
         glfwTerminate();
         return -1;
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // Para usar funciones modernas
-    glewExperimental = GL_TRUE; 
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Error: No se pudo inicializar GLEW\n");
-        glfwDestroyWindow(window);
-        glfwTerminate();
+    if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
+        fprintf(stderr, "Error al inicializar GLAD\n");
         return -1;
     }
+    glfwSetKeyCallback(window, key_callback);
 
-    
     int num_particles = NUM_PARTICLES;
-
-    // Luego reservá memoria para ellas
     Particle* particles = malloc(num_particles * sizeof(Particle));
     if (!particles) {
         fprintf(stderr, "Error al asignar memoria para partículas\n");
@@ -136,12 +137,8 @@ int main(void) {
     g_particles = particles;
     g_num_particles = num_particles;
 
-
-
-
     init_render(num_particles);
     inicialization(particles);
-
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -152,12 +149,9 @@ int main(void) {
         fprintf(stderr, "No se pudo cargar el shader program\n");
         return -1;
     }
-    // Viewport inicial
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
-
-
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
     // Loop principal
@@ -165,23 +159,18 @@ int main(void) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        // Procesar eventos
-        glfwPollEvents();
-
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        // Aquí iría la actualización y renderizado de partículas
         update_particles(g_particles, g_num_particles, deltaTime);
         glUseProgram(shader_program);
-        // Renderizar partículas
         render_particles(g_particles, g_num_particles);
-        // Swap buffers (mostrar lo que se dibujó)
         glfwSwapBuffers(window);
+        glfwPollEvents();
     }
     cleanup_render();
-    // Limpieza
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
+

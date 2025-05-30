@@ -28,6 +28,40 @@ void add_particles(Particle** particles, int* count, int n_to_add) {
     *count = new_count;
 }
 
+void handle_collisions(Particle* particles, int count) {
+    for (int i = 0; i < count; ++i) {
+        for (int j = i + 1; j < count; ++j) {
+            float dx = particles[j].x - particles[i].x;
+            float dy = particles[j].y - particles[i].y;
+            float dist_sq = dx*dx + dy*dy;
+            float min_dist = (particles[i].size + particles[j].size) / 2.0f / 500.0f; // pasá de px a NDC
+
+            if (dist_sq < min_dist * min_dist) {
+                float dist = sqrtf(dist_sq);
+                if (dist == 0.0f) dist = 0.001f;
+
+                // Separar partículas para que no se superpongan
+                float overlap = 0.5f * (min_dist - dist);
+                float nx = dx / dist;
+                float ny = dy / dist;
+
+                particles[i].x -= nx * overlap;
+                particles[i].y -= ny * overlap;
+                particles[j].x += nx * overlap;
+                particles[j].y += ny * overlap;
+
+                // Intercambio simple de velocidades (elástico)
+                float vx_i = particles[i].vx;
+                float vy_i = particles[i].vy;
+
+                particles[i].vx = particles[j].vx;
+                particles[i].vy = particles[j].vy;
+                particles[j].vx = vx_i;
+                particles[j].vy = vy_i;
+            }
+        }
+    }
+}
 
 void update_particles(Particle* particles, int count, float dt) {
     const float floor_y = -1.0f;
@@ -83,6 +117,7 @@ void update_particles(Particle* particles, int count, float dt) {
         particles[i].b = 1.0f - v_norm;
         particles[i].a = 1.0f;
     }
+    handle_collisions(particles, count);
 }
 
 void influence_particles(float x_click, float y_click, Particle* particles, int count) {
@@ -101,4 +136,5 @@ void influence_particles(float x_click, float y_click, Particle* particles, int 
         }
     }
 }
+
 
