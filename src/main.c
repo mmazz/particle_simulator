@@ -1,3 +1,6 @@
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "../include/stb_truetype.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/glad/gl.h"
@@ -144,9 +147,14 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     GLuint shader_program = load_shader_program("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
-
     if (!shader_program) {
         fprintf(stderr, "No se pudo cargar el shader program\n");
+        return -1;
+    }
+    GLuint shader_program_text = load_shader_program("src/shaders/vertex_text.glsl", "src/shaders/fragment_text.glsl");
+
+    if (!shader_program_text) {
+        fprintf(stderr, "No se pudo cargar el shader program text\n");
         return -1;
     }
     int width, height;

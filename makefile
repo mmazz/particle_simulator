@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -O2 -Iinclude
 SRC = src/main.c src/gl.c src/shader.c src/particle.c src/renderer.c
 OBJ := $(patsubst src/%.c, build/obj/%.o, $(SRC))
-LIBS = -lglfw -ldl -lGL
+LIBS = -lglfw -ldl -lGL -lm
 TARGET = main
 EXECUTABLE = simulator
 DIRS = build build/obj
